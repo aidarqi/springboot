@@ -7,12 +7,14 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.ChannelAwareMessageListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 /**
  * Copyright (C), 2017, spring boot 自我学习
@@ -23,6 +25,9 @@ import org.springframework.context.annotation.Scope;
 public class AmqpConfig {
     public static final String EXCHANGE   = "spring-boot-exchange";
     public static final String ROUTINGKEY = "spring-boot-routingKey";
+    public static final String ROUTINGKEY_FAIL = "spring-boot-routingKey-failure";
+    public static final String QUEUE_NAME = "spring-boot-queue";
+    public static final String QUEUE_NAME_FAIL = "spring-boot-queue-failure";
 
     //RabbitMQ的配置信息
     private String host;
@@ -70,9 +75,14 @@ public class AmqpConfig {
      */
     @Bean
     public Queue queue() {
-        return new Queue("spring-boot-queue", true); //队列持久
+        return new Queue(QUEUE_NAME, true); //队列持久
     }
 
+    @Bean
+    public Queue queueFail() {
+        return new Queue(QUEUE_NAME_FAIL, true); //队列持久
+
+    }
     /**
      * 绑定
      *
@@ -83,29 +93,66 @@ public class AmqpConfig {
         return BindingBuilder.bind(queue()).to(defaultExchange()).with(AmqpConfig.ROUTINGKEY);
     }
 
+    @Bean
+    public Binding bindingFail() {
+        return BindingBuilder.bind(queueFail()).to(defaultExchange()).with(AmqpConfig.ROUTINGKEY_FAIL);
+    }
     /**
      * 声明一个监听容器
      *
      * @return
      */
+//    @Bean
+//    public SimpleMessageListenerContainer messageContainer() {
+//        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory());
+//        container.setQueues(queue());
+//        container.setExposeListenerChannel(true);
+//        container.setMaxConcurrentConsumers(1);
+//        container.setConcurrentConsumers(1);
+//        container.setAcknowledgeMode(AcknowledgeMode.MANUAL); //设置确认模式手工确认
+//        container.setMessageListener(new ChannelAwareMessageListener() {
+//
+//            @Override
+//            public void onMessage(Message message, Channel channel) throws Exception {
+//                byte[] body = message.getBody();
+//                System.out.println("receive msg : " + new String(body));
+//                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false); //确认消息成功消费
+//            }
+//        });
+//        return container;
+//    }
+
     @Bean
-    public SimpleMessageListenerContainer messageContainer() {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory());
+    Receiver receiver(){
+        return new Receiver();
+    }
+
+    @Bean MessageListenerAdapter listenerAdapter(Receiver receiver) {
+        return new MessageListenerAdapter(receiver, "onMessage");
+    }
+
+    @Bean
+    public SimpleMessageListenerContainer messageListenerContainer(MessageListenerAdapter listenerAdapter) {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory());
+//        container.setQueueNames(AmqpConfig.QUEUE_NAME);
         container.setQueues(queue());
         container.setExposeListenerChannel(true);
         container.setMaxConcurrentConsumers(1);
         container.setConcurrentConsumers(1);
         container.setAcknowledgeMode(AcknowledgeMode.MANUAL); //设置确认模式手工确认
-        container.setMessageListener(new ChannelAwareMessageListener() {
-
-            @Override
-            public void onMessage(Message message, Channel channel) throws Exception {
-                byte[] body = message.getBody();
-                System.out.println("receive msg : " + new String(body));
-                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false); //确认消息成功消费
-            }
-        });
+        container.setMessageListener(listenerAdapter);
         return container;
+    }
+
+
+
+    @Bean
+    public CharacterEncodingFilter characterEncodingFilter() {
+        CharacterEncodingFilter filter = new CharacterEncodingFilter();
+        filter.setEncoding("UTF-8");
+        filter.setForceEncoding(true);
+        return filter;
     }
 
     public String getHost() {
