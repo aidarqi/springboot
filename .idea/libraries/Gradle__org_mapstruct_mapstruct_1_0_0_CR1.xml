@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: org.mapstruct:mapstruct:1.0.0.CR1">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.0.0.CR1/mapstruct-1.0.0.CR1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
