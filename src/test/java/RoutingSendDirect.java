@@ -25,11 +25,11 @@ public class RoutingSendDirect {
         //      发送消息
        channel.queueDeclare(QUEUE_NAME, true, false,false,null);
 
-//        String message = "{\n" + "  \"uname\": \"user2\",\n"
-//            + "  \"upwd\": \"000000\",\n" + "  \"usex\": true,\n"
-//            + "  \"uemail\": \"8jodh7jq@sohu.com\",\n" + "  \"createtime\": 1499822400000,\n"
-//            + "  \"modtime\": 1499822400000\n" + "}" ;
-        String message = "this is a message" ;
+        String message = "{\n" + "  \"uname\": \"user2\",\n"
+            + "  \"upwd\": \"000000\",\n" + "  \"usex\": true,\n"
+            + "  \"uemail\": \"8jodh7jq@sohu.com\",\n" + "  \"createtime\": 1499822400000,\n"
+            + "  \"modtime\": 1499822400000\n" + "}" ;
+//        String message = "this is a message" ;
 
         /*void basicPublish(String exchange, String routingKey, boolean mandatory, boolean immediate, BasicProperties props, byte[] body)
             throws IOException;
