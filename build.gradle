@@ -33,6 +33,7 @@ dependencies {
     runtime('mysql:mysql-connector-java')
     compile "org.springframework.boot:spring-boot-starter-redis:1.2.0.RELEASE"
     compile "org.springframework.boot:spring-boot-starter-amqp:1.2.0.RELEASE"
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
 }
 mainClassName = 'com.aidar.Application'
 

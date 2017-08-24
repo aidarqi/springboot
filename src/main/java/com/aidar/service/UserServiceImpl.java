@@ -9,6 +9,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
@@ -25,21 +28,47 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    @Override public User findUserByUname(String uname) {
+    @Override public User findByUNameAndUPwd(String uname,String upwd) {
         String key = "user_" + uname;
         ValueOperations<String, User> operations = redisTemplate.opsForValue();
         boolean hasKey = redisTemplate.hasKey(key);
-        System.out.println("hasKey: " + hasKey);
+//        System.out.println("hasKey: " + hasKey);
         if(hasKey) {
             User user = operations.get(key);
             logger.info("从缓存中获取用户: " + key +"---" + user.toString());
 
             return user;
         } else {
-            User user = userRepository.findByUname(uname);
+            User user = userRepository.findByUnameAndUpwd(uname,upwd);
             operations.set(key, user,30, TimeUnit.MINUTES);
             logger.info("将用户插入缓存: " + key +"---" + user.toString());
             return user;
+        }
+    }
+
+    @Override public Map findByUNameAndUPwd1(String uname,String upwd) {
+        String key = "user_" + uname;
+        ValueOperations<String, Map> operations = redisTemplate.opsForValue();
+        boolean hasKey = redisTemplate.hasKey(key);
+        //        System.out.println("hasKey: " + hasKey);
+        if(hasKey) {
+            Map map = operations.get(key);
+            logger.info("从缓存中获取用户: " + key +"---" + map.toString());
+
+            return map;
+        } else {
+            User user = userRepository.findByUnameAndUpwd(uname,upwd);
+            Map map = new HashMap();
+//            map.put("createtime",user.getCreatetime());
+//            map.put("modtime",user.getModtime());
+//            map.put("uemail",user.getUemail());
+            map.put("uid",user.getUid());
+//            map.put("uname",user.getUname());
+//            map.put("upwd",user.getUpwd());
+//            map.put("usex",user.getUsex());
+            operations.set(key, map,30, TimeUnit.MINUTES);
+            logger.info("将用户插入缓存: " + key +"---" + map.toString());
+            return map;
         }
     }
 

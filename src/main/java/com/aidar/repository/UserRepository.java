@@ -30,4 +30,6 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
 
     @Query(value = "select * from User limit 10",nativeQuery = true)
     List<User> findByYi();
+
+    User findByUnameAndUpwd(String uname, String upwd);
 }

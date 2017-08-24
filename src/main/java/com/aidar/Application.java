@@ -30,15 +30,15 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class Application {
 
     //人为指定使用哪个事务管理器, 其中 dataSource 框架会自动为我们注入
-    @Bean
-    public PlatformTransactionManager txManager(DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
-    }
-    @Bean
-    public Object testBean(PlatformTransactionManager platformTransactionManager){
-        System.out.println(">>>>>>>>>>" + platformTransactionManager.getClass().getName());
-        return new Object();
-    }
+//    @Bean
+//    public PlatformTransactionManager txManager(DataSource dataSource) {
+//        return new DataSourceTransactionManager(dataSource);
+//    }
+//    @Bean
+//    public Object testBean(PlatformTransactionManager platformTransactionManager){
+//        System.out.println(">>>>>>>>>>" + platformTransactionManager.getClass().getName());
+//        return new Object();
+//    }
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(Application.class);
         app.run(args);
